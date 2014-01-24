@@ -112,3 +112,14 @@ svg.ground {
         stroke : none;
 		font-family: Arial;
     }
+
+.axis text {
+    font-family: Arial;
+    font: 10px;
+}.axis path,
+.axis line {
+    fill: none;
+     stroke : gray;
+     stroke-width : .3pt;
+    shape-rendering: crispEdges;
+}

@@ -56,8 +56,6 @@ var distScale, parseDate, timeScale
 						.attr("cy", function (d) {return projection(d.geometry.coordinates)[1]})
 						.attr("r",function (d) {if (d.properties.stop != 0) {return "4"}else{ return "1"}})
 						.attr("class", function (d) {if (d.properties.stop != 0) {return "stop"}else{ return "track"}})
-
-
 					});	//end of function loading and visualising point data
 
 //the time-distance relations
@@ -66,6 +64,30 @@ var SVGwidth = 650, SVGheight = 170;
 var xMargin = 10, yT = 150, yD = 70;
 var totaldistance = 70, totaltime = 70, distancescale=10, timescale = 10, linelength=600;
 var track, tracks, lines;
+
+
+
+//variables for the  various time-distance visualisations
+var dateFormat = d3.time.format("%d-%m-%YT%H:%M:%S");
+function parseMyDate(DateStr) {
+    //parses string to Date and expresses as ms since epoch (+ expression)
+    return +dateFormat.parse(DateStr);
+}
+
+//these min-max values should be really be retrieved from data:
+var earliestTime = parseMyDate("9-1-2014T10:37:32");
+var latestTime = parseMyDate("9-1-2014T11:11:24");
+var smallestDist = 0;
+var largestDist = 2.1179;
+
+//vars domain for the scales
+var timeScale = d3.scale.linear()
+        .domain([earliestTime, latestTime])
+        .range([0, linelength]);
+var distScale = d3.scale.linear()
+        .domain([smallestDist, largestDist])
+        .range([0, linelength]);
+
 
 
 //create SVG placeholders
@@ -123,6 +145,14 @@ svgScale.append("line")
         .attr("y2", yD)
         .attr("x1", xMargin)
         .attr("x2", xMargin + linelength)
+        ;
+var distAxis = d3.svg.axis()
+        .scale(distScale)
+        .orient("bottom");
+svgScale.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(10,70)" )
+        .call(distAxis)
         ;
 svgScale.append("text")
         .attr("x", xMargin+10)
@@ -208,18 +238,6 @@ svgScale3.append("text")
         .text("TIME")
 ;
 
-
-//variables for the  various time-distance visualisations
-//var time format, string to be used later
-var parseDate = d3.time.format("%H:%M:%S").parse;
-
-var mytime;
-
-//vars domain for the scales
-distScale = d3.scale.linear()
-					.domain([0, 2.1179])
-					.range([0, 630]);
-
 //load trackdata
 d3.json("data/trackNw.geojson", function(error, tracks) { //when read, do function
 //console.log(tracks);
@@ -227,42 +245,37 @@ d3.json("data/trackNw.geojson", function(error, tracks) { //when read, do functi
 //COMMON
 //create distance events
 	svgScale.selectAll(".distancecircle")
-			.data(tracks.features)
+			.data(tracks.features.filter(function(d) { return d.properties.stop != 0; } ))
 			.enter()
 			.append("circle")
-            .attr("class", function (d) {if (d.properties.stop != 0) {return "distancecircle"}else{ return "nocircle"}}) //maybe change this for a d3.filter
-            .attr("cx", function(d) {
-				if (d.properties.stop != 0) {return 10+(distScale(d.properties.distance))}})
+            .attr("class", "distancecircle")
+            .attr("cx", function(d) {return 10+(distScale(d.properties.distance))})
             .attr("cy", yD)
             .attr("r", "2")
 
+
+
+
 //create time events
-/* this gives me most trouble till now */
-//    svgScale.selectAll(".timecircle")
-//            .data(tracks.features)
-//            .enter()
-////			.forEach(function(d) {
-////					mytime = ;
-////				})
-//			.append("circle")
-//            .attr("class", function (d) {if (d.properties.stop != 0) {return "timecircle"}else{ return "nocircle"}})
-//            .attr("cx", function(d) {
-//                if (d.properties.stop != 0) {return parseDate(d.properties.time)}})
-//            .attr("cy", yT)
-//            .attr("r", "2")
-//
-////create connectors
-//    svgScale.selectAll(".connectors")
-//            .data(tracks.features)
-//            .enter()
-//			.append("line")
-//            .attr("class", function (d) {if (d.properties.stop != 0) {return "connectors"}else{ return "noconnector"}})
-//            .attr("x1", function(d) {
-//                if (d.properties.stop != 0) {return 10 + parseDate(d.properties.time)}})
-//            .attr("y1", yT)
-//            .attr("x2", function(d) {
-//				if (d.properties.stop != 0) {return 10+(distScale(d.properties.distance))}})
-//            .attr("y2", yD)
+    svgScale.selectAll(".timecircle")
+            .data(tracks.features.filter(function(d) { return d.properties.stop != 0; } ))
+            .enter()
+            .append("circle")
+            .attr("class", "timecircle")
+            .attr("cx", function(d) {return 10+(timeScale(parseMyDate(d.properties.date + "T" + d.properties.time)))})
+            .attr("cy", yT)
+            .attr("r", "2")
+
+//create connectors
+    svgScale.selectAll(".connectors")
+            .data(tracks.features.filter(function(d) { return d.properties.stop != 0; } ))
+            .enter()
+			.append("line")
+            .attr("class", "connectors")
+            .attr("x1", function(d) {return 10+(timeScale(parseMyDate(d.properties.date + "T" + d.properties.time)))})
+            .attr("y1", yT)
+            .attr("x2", function(d) {return 10+(distScale(d.properties.distance))})
+            .attr("y2", yD)
 /*
 //TIME TO GEO
 //create distance events
