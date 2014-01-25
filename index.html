@@ -19,7 +19,7 @@
 //variables
 var distScale, parseDate, timeScale
 //Width and height
-			var w = 600;
+			var w = 550;
 			var h = 538;
 					var test;
 
@@ -62,26 +62,26 @@ var distScale, parseDate, timeScale
 
 var SVGwidth = 650, SVGheight = 170;
 var xMargin = 10, yT = 150, yD = 70;
-var totaldistance = 70, totaltime = 70, distancescale=10, timescale = 10, linelength=600;
+var linelength=600;
 var track, tracks, lines;
 
 
 
 //variables for the  various time-distance visualisations
 var dateFormat = d3.time.format("%d-%m-%YT%H:%M:%S");
+//parses string to Date object
 function parseMyDate(DateStr) {
-    //parses string to Date and expresses as ms since epoch (+ expression)
-    return +dateFormat.parse(DateStr);
+    return dateFormat.parse(DateStr);
 }
 
-//these min-max values should be really be retrieved from data:
+//TODO: these min-max values should be really be retrieved from data:
 var earliestTime = parseMyDate("9-1-2014T10:37:32");
 var latestTime = parseMyDate("9-1-2014T11:11:24");
 var smallestDist = 0;
 var largestDist = 2.1179;
 
 //vars domain for the scales
-var timeScale = d3.scale.linear()
+var timeScale = d3.time.scale()
         .domain([earliestTime, latestTime])
         .range([0, linelength]);
 var distScale = d3.scale.linear()
@@ -110,15 +110,13 @@ var svgScale3 = d3.select("body").append("svg")
         .attr("height", SVGheight)
         ;
 
-
-
 //Overall title
 svgScale.append("text")
         .attr("x", xMargin+10)
         .attr("y", yD-35)
 		.attr("fill", "red")
 		.attr("font-size", 20)
-        .text("COMMON REPRESENTATION (both scales fixed)")
+        .text("COMMON REPRESENTATION (both scales fixed):")
 ;
 
 svgScale2.append("text")
@@ -133,25 +131,19 @@ svgScale3.append("text")
         .attr("y", yD-35)
 		.attr("fill", "red")
 		.attr("font-size", 20)
-        .text("FROM GEOGRAPHY TO TIME")
+        .text("FROM GEOGRAPHY TO TIME:")
 ;
 
-
 //DISTANCE
-//draw baseline + text for distance
-svgScale.append("line")
-        .attr("id","distanceLine")
-        .attr("y1", yD)
-        .attr("y2", yD)
-        .attr("x1", xMargin)
-        .attr("x2", xMargin + linelength)
-        ;
+// set properties of distance axis:
 var distAxis = d3.svg.axis()
         .scale(distScale)
-        .orient("bottom");
+        .orient("bottom")
+        ;
+//draw axis + text for distance for each scale
 svgScale.append("g")
         .attr("class", "axis")
-        .attr("transform", "translate(10,70)" )
+        .attr("transform", "translate(" + xMargin + "," + yD +")" )
         .call(distAxis)
         ;
 svgScale.append("text")
@@ -162,13 +154,11 @@ svgScale.append("text")
         .text("DISTANCE")
 ;
 
-svgScale2.append("line")
-        .attr("id","distanceLine")
-        .attr("y1", yD)
-        .attr("y2", yD)
-        .attr("x1", xMargin)
-        .attr("x2", xMargin + linelength)
-        ;
+svgScale2.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + xMargin + "," + yD +")" )
+        .call(distAxis)
+;
 svgScale2.append("text")
         .attr("x", xMargin+10)
         .attr("y", yD-5)
@@ -176,13 +166,11 @@ svgScale2.append("text")
 		.attr("font-size", 10)
         .text("DISTANCE")
 ;
-svgScale3.append("line")
-        .attr("id","distanceLine")
-        .attr("y1", yD)
-        .attr("y2", yD)
-        .attr("x1", xMargin)
-        .attr("x2", xMargin + linelength)
-        ;
+svgScale3.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + xMargin + "," + yD +")" )
+        .call(distAxis)
+;
 svgScale3.append("text")
         .attr("x", xMargin+10)
         .attr("y", yD-5)
@@ -193,14 +181,17 @@ svgScale3.append("text")
 
 
 //TIME
-//draw baseline + text for time
-svgScale.append("line")
-        .attr("id","timeLine")
-        .attr("y1", yT)
-        .attr("y2", yT)
-        .attr("x1", xMargin)
-        .attr("x2", xMargin + linelength)
+// set properties of time axes:
+var timeAxis = d3.svg.axis()
+        .scale(timeScale)
+        .orient("bottom")
         ;
+//draw axes + text for time, for each scale
+svgScale.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + xMargin + "," + yT +")" )
+        .call(timeAxis)
+;
 svgScale.append("text")
         .attr("x", xMargin+10)
         .attr("y", yT-5)
@@ -208,14 +199,11 @@ svgScale.append("text")
 		.attr("font-size", 10)
         .text("TIME")
 ;
-
-svgScale2.append("line")
-        .attr("id","timeLine")
-        .attr("y1", yT)
-        .attr("y2", yT)
-        .attr("x1", xMargin)
-        .attr("x2", xMargin + linelength)
-        ;
+svgScale2.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + xMargin + "," + yT +")" )
+        .call(timeAxis)
+;
 svgScale2.append("text")
         .attr("x", xMargin+10)
         .attr("y", yT-5)
@@ -223,13 +211,11 @@ svgScale2.append("text")
 		.attr("font-size", 10)
         .text("TIME")
 ;
-svgScale3.append("line")
-        .attr("id","timeLine")
-        .attr("y1", yT)
-        .attr("y2", yT)
-        .attr("x1", xMargin)
-        .attr("x2", xMargin + linelength)
-        ;
+svgScale3.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + xMargin + "," + yT +")" )
+        .call(timeAxis)
+;
 svgScale3.append("text")
         .attr("x", xMargin+10)
         .attr("y", yT-5)
@@ -249,100 +235,82 @@ d3.json("data/trackNw.geojson", function(error, tracks) { //when read, do functi
 			.enter()
 			.append("circle")
             .attr("class", "distancecircle")
-            .attr("cx", function(d) {return 10+(distScale(d.properties.distance))})
+            .attr("cx", function(d) {return xMargin+(distScale(d.properties.distance))})
             .attr("cy", yD)
             .attr("r", "2")
-
-
-
-
+            ;
 //create time events
     svgScale.selectAll(".timecircle")
             .data(tracks.features.filter(function(d) { return d.properties.stop != 0; } ))
             .enter()
             .append("circle")
             .attr("class", "timecircle")
-            .attr("cx", function(d) {return 10+(timeScale(parseMyDate(d.properties.date + "T" + d.properties.time)))})
+            .attr("cx", function(d) {return xMargin+(timeScale(parseMyDate(d.properties.date + "T" + d.properties.time)))})
             .attr("cy", yT)
             .attr("r", "2")
-
+            ;
 //create connectors
     svgScale.selectAll(".connectors")
             .data(tracks.features.filter(function(d) { return d.properties.stop != 0; } ))
             .enter()
 			.append("line")
             .attr("class", "connectors")
-            .attr("x1", function(d) {return 10+(timeScale(parseMyDate(d.properties.date + "T" + d.properties.time)))})
+            .attr("x1", function(d) {return xMargin+(timeScale(parseMyDate(d.properties.date + "T" + d.properties.time)))})
             .attr("y1", yT)
-            .attr("x2", function(d) {return 10+(distScale(d.properties.distance))})
+            .attr("x2", function(d) {return xMargin+(distScale(d.properties.distance))})
             .attr("y2", yD)
-/*
-//TIME TO GEO
-//create distance events
-    svgScale2.selectAll(".distancecircle")
-        .data(tracks)
-            .enter().append("circle")
-            .attr("class", "distancecircle")
-            .attr("cx", function(d) {
-                    return xMargin + dist1Xscale(d.properties.dist); })
-            .attr("cy", yD)
-            .attr("r", "5")
+            ;
 
+//TIME TO GEO
+
+    svgScale2.selectAll(".distancecircle")
+            .data(tracks.features.filter(function(d) { return d.properties.stop != 0; } ))
+            .enter()
+            .append("circle")
+            .attr("class", "distancecircle")
+            .attr("cx", function(d) {return xMargin+(distScale(d.properties.distance))})
+            .attr("cy", yD)
+            .attr("r", "2")
+            ;
 //create time events
     svgScale2.selectAll(".timecircle")
-            .data(tracks)
-            .enter().append("circle")
+            .data(tracks.features.filter(function(d) { return d.properties.stop != 0; } ))
+            .enter()
+            .append("rect")
             .attr("class", "timecircle")
-            .attr("cx", function(d) {
-                return xMargin + (d.properties.timestamp * timescale); })
-            .attr("cy", yT)
-            .attr("r", "5")
-
+            .attr("x", function(d) {return xMargin+(timeScale(parseMyDate(d.properties.date + "T" + d.properties.time)))})
+            .attr("y", yT - 2)
+            .attr("width", function(d) {
+                var startTime = parseMyDate(d.properties.date + "T" + d.properties.time);
+                var startX = xMargin+(timeScale(startTime));
+                var stopTimeArray = (d.properties.stop).split(":");
+                var stopTime = new Date(startTime.getFullYear(),
+                        startTime.getMonth(),
+                        startTime.getDate(),
+                        startTime.getHours()+parseInt(stopTimeArray[0]),
+                        startTime.getMinutes()+parseInt(stopTimeArray[1]),
+                        startTime.getSeconds()+parseInt(stopTimeArray[2])
+                        );
+                var endX = xMargin+(timeScale(stopTime));
+                return endX - startX;
+                })
+            .attr("height", 4)
+    ;
 //create connectors
     svgScale2.selectAll(".connectors")
-            .data(tracks)
-            .enter().append("line")
+            .data(tracks.features.filter(function(d) { return d.properties.stop != 0; } ))
+            .enter()
+            .append("line")
             .attr("class", "connectors")
-            .attr("x1", function(d) {
-                return xMargin + (d.properties.timestamp * timescale); })
+            .attr("x1", function(d) {return xMargin+(timeScale(parseMyDate(d.properties.date + "T" + d.properties.time)))})
             .attr("y1", yT)
-            .attr("x2", function(d) {
-                return xMargin + (d.properties.dist * distancescale); })
+            .attr("x2", function(d) {return xMargin+(distScale(d.properties.distance))})
             .attr("y2", yD)
+    ;
+
 
 //GEO TO TIME
-//create distance events
-    svgScale3.selectAll(".distancecircle")
-        .data(tracks)
-            .enter().append("circle")
-            .attr("class", "distancecircle")
-            .attr("cx", function(d) {
-                    return xMargin + dist1Xscale(d.properties.dist); })
-            .attr("cy", yD)
-            .attr("r", "5")
 
-//create time events
-    svgScale3.selectAll(".timecircle")
-            .data(tracks)
-            .enter().append("circle")
-            .attr("class", "timecircle")
-            .attr("cx", function(d) {
-                return xMargin + (d.properties.timestamp * timescale); })
-            .attr("cy", yT)
-            .attr("r", "5")
-
-//create connectors
-    svgScale3.selectAll(".connectors")
-            .data(tracks)
-            .enter().append("line")
-            .attr("class", "connectors")
-            .attr("x1", function(d) {
-                return xMargin + (d.properties.timestamp * timescale); })
-            .attr("y1", yT)
-            .attr("x2", function(d) {
-                return xMargin + (d.properties.dist * distancescale); })
-            .attr("y2", yD)
-*/
 	})
 
 		</script>
