@@ -103,6 +103,22 @@ var svgScale2 = d3.select("body").append("svg")
         .attr("width", SVGwidth)
         .attr("height", SVGheight)
         ;
+var gradient1 = svgScale2.append("defs")
+        .append("linearGradient")
+        .attr("id", "gradient1")
+        .attr("x1", "0%")
+        .attr("y1", "100%")
+        .attr("x2", "0%")
+        .attr("y2", "0%");
+gradient1.append("stop")
+        .attr("offset","0%")
+        .attr("style", "stop-color:rgb(255,0,0);stop-opacity:.3")
+        ;
+gradient1.append("stop")
+        .attr("offset","100%")
+        .attr("style", "stop-color:rgb(0,0,255);stop-opacity:.3")
+;
+
 
 var svgScale3 = d3.select("body").append("svg")
         .attr("id", "scales3SVG")
@@ -296,16 +312,30 @@ d3.json("data/trackNw.geojson", function(error, tracks) { //when read, do functi
                 })
             .attr("height", 4)
     ;
-//create connectors
-    svgScale2.selectAll(".connectors")
+//create connector triangles
+    svgScale2.selectAll(".connectorTriangles")
             .data(tracks.features.filter(function(d) { return d.properties.stop != 0; } ))
             .enter()
-            .append("line")
-            .attr("class", "connectors")
-            .attr("x1", function(d) {return xMargin+(timeScale(parseMyDate(d.properties.date + "T" + d.properties.time)))})
-            .attr("y1", yT)
-            .attr("x2", function(d) {return xMargin+(distScale(d.properties.distance))})
-            .attr("y2", yD)
+            .append("path")
+            .attr("class", "connectorTriangles")
+            .attr("fill", "url(#gradient1")
+            .attr("d", function(d) {
+                var startTime = parseMyDate(d.properties.date + "T" + d.properties.time);
+                var startX = xMargin+(timeScale(startTime));
+                var dStr = "M" + (startX) + " " + yT;
+                dStr += " L" + (xMargin+(distScale(d.properties.distance))) + " " + yD;
+                var stopTimeArray = (d.properties.stop).split(":");
+                var stopTime = new Date(startTime.getFullYear(),
+                        startTime.getMonth(),
+                        startTime.getDate(),
+                        startTime.getHours()+parseInt(stopTimeArray[0]),
+                        startTime.getMinutes()+parseInt(stopTimeArray[1]),
+                        startTime.getSeconds()+parseInt(stopTimeArray[2])
+                );
+                var endX = xMargin+(timeScale(stopTime));
+                dStr += " L" + (endX) + " " + yT;
+                return dStr;
+            })
     ;
 
 

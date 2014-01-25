@@ -23,6 +23,9 @@ font-family: Arial;
 font-size:10px;
 }
 
+body {
+    background-color: lightgray;
+}
 p {
 	font-family: Arial;
 	font-size:10px;
@@ -44,8 +47,8 @@ div.bar {
 }
 
 svg{
-	border-style:dotted;
-	border-width: 1px;
+	border:none;
+    background-color: white;
 	padding: 5px;
 }
 
@@ -100,10 +103,13 @@ svg.ground {
 	.nocircle{
 		display: none;
 	}
-
+    .connectorTriangles {
+    stroke : gray;
+    stroke-width : .1pt;
+    }
     .connectors {
         fill : none;
-        stroke : black;
+        stroke : gray;
         stroke-width : .1pt;
     }
     .noconnector {
